@@ -5,8 +5,8 @@ import './Project.sol';
 
 contract Crowdfunding{
 
-}
-// [] Anyone can start a funding project .
+
+// Anyone can start a funding project 
 event projectStarted(
     address projectContractAddress ,
     address creator,
