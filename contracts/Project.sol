@@ -7,7 +7,7 @@ import "hardhat/console.sol";
 // If raised amount is not equal to the targeted contribution 
 //         - the project expire and the donated amount is returned to the contributors - done
 // The owner can request contributors before withdraw amount - done
-// The owner can withdraw amount if 50 % of the contributors agree
+// The owner can withdraw amount if 50 % of the contributors agree - done
 
 
 contract Project{
@@ -26,7 +26,7 @@ contract Project{
         string description;
         uint256 amount;
         uint256 noOfVotes;
-        mapping(address => uint256) voters;
+        mapping(address => bool) voters;
         bool isCompleted;
         address payable recipient;
     }
@@ -76,7 +76,15 @@ contract Project{
             address recipient
         );
         //event that will be emitted when contributor votes for withdraw request
-        event WithdrawVote(address contributor, uint amount, uint currentTotal);
+        event WithdrawVote(address voter, uint totalVote);
+        event AmountWithdrawSuccessful(
+            uint256 requestId,
+            string description,
+            uint256 amount,
+            uint256 noOfVotes,
+            bool isCompleted,
+            address recipient
+        );
 
 
     constructor(
@@ -134,7 +142,7 @@ contract Project{
     }
 
 
-    function createWithdrawRequest(string memory _description, uint256 _amount, address payable _recipient) public isCreator() {
+    function createWithdrawRequest(string memory _description, uint256 _amount, address payable _recipient) public isCreator() validateExpiry(State.Successful) {
         WithdrawRequest storage newRequest = withdrawRequests[noOfWithdrawRequests];
         noOfWithdrawRequests++;
 
@@ -145,5 +153,33 @@ contract Project{
         newRequest.recipient = _recipient;
 
         emit WithdrawRequestCreated(noOfWithdrawRequests, _description, _amount, 0, false, _recipient);
+    }
+
+
+    function voteWithdrawRequest(uint256 _requestId) public {
+        require(contributors[msg.sender] > 0, 'Only contributors can vote!');
+        WithdrawRequest storage requestDetails = withdrawRequests[_requestId];
+        require(requestDetails.voters[msg.sender] == false, 'You already voted!');
+        requestDetails.voters[msg.sender] = true;
+        requestDetails.noOfVotes++;
+        emit WithdrawVote(msg.sender, requestDetails.noOfVotes);
+    }
+
+
+    function withdrawRequestedAmount(uint256 _requestId) isCreator() validateExpiry(State.Successful) public {
+        WithdrawRequest storage requestDetails = withdrawRequests[_requestId];
+        require(requestDetails.isCompleted == false, 'Request already completed');
+        require(requestDetails.noOfVotes == noOfContributers/2, 'At least 50% of the contributors need to vote for this request');
+        requestDetails.recipient.transfer(requestDetails.amount);
+        requestDetails.isCompleted == true;
+
+        emit AmountWithdrawSuccessful(
+            _requestId,
+            requestDetails.description,
+            requestDetails.amount,
+            requestDetails.noOfVotes,
+            requestDetails.isCompleted,
+            requestDetails.recipient
+        );
     }
 }
