@@ -2,11 +2,11 @@
 pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 
-// Anyone can contribute
-// If targeted contribution is not reached - we end the project
-// If raised amount is not equal to the targeted contribution
-//         - the project expire and the donated amount is returned to the contributors
-// The owner can request contributors before withdraw amount
+// Anyone can contribute - done
+// If targeted contribution is not reached - we end the project - done
+// If raised amount is not equal to the targeted contribution 
+//         - the project expire and the donated amount is returned to the contributors - done
+// The owner can request contributors before withdraw amount - done
 // The owner can withdraw amount if 50 % of the contributors agree
 
 
@@ -42,7 +42,12 @@ contract Project{
         string public projectTitle;
         string public projectDes;
         State public state = State.Fundraising; 
+
+
         mapping (address => uint) public contributors;
+        mapping (uint256 => WithdrawRequest) public withdrawRequests;
+
+        uint256 noOfWithdrawRequests = 0;
 
     // modifiers: 
         
@@ -61,6 +66,15 @@ contract Project{
 
         //event that will be emitted when funding is received
         event FundingReceived(address contributor, uint amount, uint currentTotal);
+        //event that will be emitted when a withdraw request is created
+        event WithdrawRequestCreated(
+            uint256 requestId,
+            string description,
+            uint256 amount,
+            uint256 noOfVotes,
+            bool isCompleted,
+            address recipient
+        );
         //event that will be emitted when contributor votes for withdraw request
         event WithdrawVote(address contributor, uint amount, uint currentTotal);
 
@@ -95,6 +109,7 @@ contract Project{
         checkFundingCompleteOrExpire();
     }
 
+
     function checkFundingCompleteOrExpire() internal {
         if(raisedAmount >= targetContribution){
             state = State.Successful;
@@ -109,11 +124,26 @@ contract Project{
         return address(this).balance;
     }
 
+
     function requestRefund() public validateExpiry(State.Expired) returns(bool) {
         require(contributors[msg.sender] > 0, 'You dont have any contributed amount!');
         address payable user = payable(msg.sender);
         user.transfer(contributors[msg.sender]);
         contributors[msg.sender] = 0;
         return true;
+    }
+
+
+    function createWithdrawRequest(string memory _description, uint256 _amount, address payable _recipient) public isCreator() {
+        WithdrawRequest storage newRequest = withdrawRequests[noOfWithdrawRequests];
+        noOfWithdrawRequests++;
+
+        newRequest.description = _description;
+        newRequest.amount = _amount;
+        newRequest.noOfVotes = 0;
+        newRequest.isCompleted = false;
+        newRequest.recipient = _recipient;
+
+        emit WithdrawRequestCreated(noOfWithdrawRequests, _description, _amount, 0, false, _recipient);
     }
 }
