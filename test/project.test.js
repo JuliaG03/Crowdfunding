@@ -53,9 +53,9 @@ describe("Project", () => {
             
         })
         it("Should fail if amount is less than minimum contribution amount", async () => {
-            await expect(projectContract.connect(address1).contribute({value:etherToWei('0.5')})).to.be.revertedWith('Contribution amount is too low !');
+            await expect(projectContract.connect(address1).contribute({value:etherToWei('0.5')})).to.be.revertedWith('Contribution amount is too low!');
         })
-        it("State should change to Successful if targeted amount hit ", async () => {
+        it("State should change to Successful if targeted amount hit", async () => {
             await projectContract.connect(address1).contribute({value:etherToWei('12')});
             expect(Number(await projectContract.completeAt())).to.greaterThan(0);
             expect(await projectContract.state()).to.equal(+2);
