@@ -53,7 +53,7 @@ contract Project{
         
         // Modifiers
         modifier isCreator(){
-            require(msg.sender == creator,'You dont have access to perform this operation !');
+            require(msg.sender == creator,'You dont have access to perform this operation!');
             _;
         }
         modifier validateExpiry(State _state){

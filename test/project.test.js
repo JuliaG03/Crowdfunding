@@ -61,10 +61,99 @@ describe("Project", () => {
             expect(await projectContract.state()).to.equal(+2);
         })
     })
-    describe("Withdraw request", async function () {
-    })
+
+
+    describe("Create withdraw request", async function () {
+      it("should fail if someone else try to request (Only owner can make request) ", async() => {
+        await 
+        expect(projectContract.connect(address2).createWithdrawRequest("Testing description", etherToWei('2'),address2.address)).to.be.revertedWith('You dont have access to perform this operation!');
+        
+      })
+
+      it("Withdraw request should fail if status not equal to succesful", async () => {
+        await
+        expect(projectContract.connect(address1).createWithdrawRequest("Testing description", etherToWei('2'),address1.address)).to.be.revertedWith('Invalid state');
+
+        })
+
+        it("Request for withdraw", async () =>{
+          await
+          projectContract.connect(address1).contribute({value:etherToWei("12")});
+
+          const withdrawRequest = await
+                projectContract.connect(address1).createWithdrawRequest("Testing description",etherToWei('2'),address1.address)
+
+          const event = await withdrawRequest.wait();
+
+          expect(event.logs.length).to.equal(1);
+          const decodedEvent = projectContract.interface.decodeEventLog("WithdrawRequestCreated", event.logs[0].data,event.logs[0].topics);
+
+          //Test event:
+
+          
+          expect(decodedEvent.description).to.equal("Testing description");
+
+          expect(decodedEvent.amount).to.equal(etherToWei('2'));
+
+          expect(decodedEvent.noOfVotes).to.equal(0);
+          expect(decodedEvent.isCompleted).to.equal(false);
+            
+          expect(decodedEvent.recipient).to.equal(address1.address);
+          })
+      })
+    
     describe("Vote for withdraw request", async function () {
+
+        it("Only contributors can vote" , async () =>{
+          await
+          projectContract.connect(address1).contribute({value:etherToWei('12')});
+          await
+          projectContract.connect(address1).createWithdrawRequest("Testing description", etherToWei('2'),address1.address)
+          await
+          expect(projectContract.connect(address2).voteWithdrawRequest(0)).to.be.revertedWith('Only contributors can vote!');
+
+        })
+
+        it("Vote withdraw request", async () => {
+          await
+          projectContract.connect(address1).contribute({value:etherToWei('6')});
+          await
+          projectContract.connect(address2).contribute({value:etherToWei('7')});
+          await
+          projectContract.connect(address1).createWithdrawRequest("Testing description",etherToWei('2'),address1.address)
+          const voteforWithdraw = await
+                        projectContract.connect(address2).voteWithdrawRequest(0)
+          const event = await 
+                        voteforWithdraw.wait();
+          
+          expect(event.logs.length).to.equal(1);
+          const decodedEvent = projectContract.interface.decodeEventLog("WithdrawVote", event.logs[0].data,event.logs[0].topics);
+
+          //Test event: 
+
+        //  expect(decodedEvent.event).to.equal("WithdrawVote");
+
+          expect(decodedEvent.voter).to.equal(address2.address);
+          expect(Number(decodedEvent.totalVote)).to.equal(1);
+
+        })
+
+        it("Should fail if request already vote", async() =>{
+        
+      await
+        projectContract.connect(address1).contribute({value:etherToWei('6')});
+      await
+        projectContract.connect(address2).contribute({value:etherToWei('7')});
+      await
+        projectContract.connect(address1).createWithdrawRequest("Testing description",etherToWei('2'),address1.address)
+      await
+        projectContract.connect(address2).voteWithdrawRequest(0)
+      
+      await expect(projectContract.connect(address2).voteWithdrawRequest(0)).to.be.revertedWith('You already voted!');
+     })
     })
+
+
     describe("Withdraw balance", async function () {
     })
 })
