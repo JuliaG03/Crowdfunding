@@ -155,5 +155,65 @@ describe("Project", () => {
 
 
     describe("Withdraw balance", async function () {
+
+      it("Should fail if 50% contributor need to voted", async () => {
+        await 
+          projectContract.connect(address1).contribute({value:etherToWei('6') });
+        await
+          projectContract.connect(address2).contribute({value:etherToWei('7') });
+        await
+          projectContract.connect(address1).createWithdrawRequest("Testing description", etherToWei('2'),address1.address)
+        await
+        expect(projectContract.connect(address1).withdrawRequestedAmount(0)).to.be.revertedWith('At least 50% of the contributors need to vote for this request');
+
+      })
+
+      it("Withdraw requested balance", async () =>{
+
+        await 
+          projectContract.connect(address1).contribute({value:etherToWei('6')});
+        await 
+          projectContract.connect(address2).contribute({value:etherToWei('7')});
+        await
+          projectContract.connect(address1).createWithdrawRequest("Testing description", etherToWei('2'), address1.address)
+        await 
+          projectContract.connect(address1).voteWithdrawRequest(0)
+        await
+          projectContract.connect(address2).voteWithdrawRequest(0)
+
+        const withdrawAmount = await
+                        projectContract.connect(address1).withdrawRequestedAmount(0);
+        const event = await withdrawAmount.wait();
+
+        expect(event.logs.length).to.equal(1);
+        const decodedEvent = projectContract.interface.decodeEventLog("AmountWithdrawSuccessful", event.logs[0].data,event.logs[0].topics);
+
+        // test event: 
+
+
+        expect(decodedEvent.amount).to.equal(etherToWei('2'));
+        expect(decodedEvent.noOfVotes).to.equal(2);
+        expect(decodedEvent.isCompleted).to.equal(true);
+        expect(decodedEvent.recipient).to.equal(address1.address);
+      })
+
+
+      it("Should fail if request already completed", async() => {
+        await
+          projectContract.connect(address1).contribute({value:etherToWei('6')});
+        await
+          projectContract.connect(address2).contribute({value:etherToWei('7')});
+        await
+          projectContract.connect(address1).createWithdrawRequest("Testing description",etherToWei('2'),address1.address)
+        await 
+          projectContract.connect(address1).voteWithdrawRequest(0)
+        await 
+          projectContract.connect(address2).voteWithdrawRequest(0)
+        await 
+          projectContract.connect(address1).withdrawRequestedAmount(0);
+        await
+        expect(projectContract.connect(address1).withdrawRequestedAmount(0)).to.be.revertedWith('Request already completed');
+
+      })
     })
 })
