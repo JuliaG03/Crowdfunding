@@ -121,7 +121,7 @@ contract Project{
     function checkFundingCompleteOrExpire() internal {
         if(raisedAmount >= targetContribution){
             state = State.Successful;
-        }else if(block.timestamp > deadline){
+        }else if(block.timestamp >= deadline){
             state = State.Expired;
         }
         completeAt = block.timestamp;
