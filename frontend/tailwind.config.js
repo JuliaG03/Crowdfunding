@@ -6,8 +6,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        darkgreen: '#355834',
-        babypowder: '#F1F5F2'
+        accentcolor1: '#31493c',
+        accentcolor2: '#7A9E7E',
+        fontcolor: '#e8f1f2',
+        backgroundcolor: '#001A23',
+        extracolor: '#B3EFB2'
       }
     },
   },
