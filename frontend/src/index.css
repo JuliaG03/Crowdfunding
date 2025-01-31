@@ -1,3 +1,32 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+    @apply bg-backgroundcolor;
+  }
+  
+  .card {
+    @apply w-full bg-slate-50 p-3 lg:p-6 shadow-md rounded-xl;
+  }
+  
+  .ribbon {
+    @apply absolute top-0 right-0 m-2 py-1 px-3 rounded-lg text-sm text-center text-white font-semibold bg-emerald-500;
+  }
+  
+  .inner-card {
+    @apply bg-emerald-100/30 p-4 mx-2 my-6 rounded-md;
+  }
+  
+  .input {
+    @apply border border-emerald-300 py-2 px-4 rounded-l-md focus:outline-none focus:ring-2 focus:ring-emerald-400 w-full;
+  }
+  
+  .button {
+    @apply border bg-emerald-500 text-white rounded-r-md px-4 hover:bg-emerald-600 active:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400;
+  }
+  
+  .progress {
+    @apply bg-pink-500 w-full text-xs font-medium text-white text-center py-0.5 leading-none rounded-l-full;
+  }
+  

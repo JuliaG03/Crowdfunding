@@ -6,11 +6,24 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        accentcolor1: '#31493c',
-        accentcolor2: '#7A9E7E',
-        fontcolor: '#e8f1f2',
-        backgroundcolor: '#001A23',
-        extracolor: '#B3EFB2'
+        backgroundcolor: {
+          DEFAULT: "#F3F4F6", // bg-gray-100 ok
+        },
+        accentcolor: {
+          DEFAULT: "#0fb07b", // bg-emerald-500 ok
+          light: "#ecfdf5", // bg-emerald-50 ok 
+        }, 
+        card: "#FFFFFF", // bg-white ok
+        dark: "#1f2937", // text-gray-800. ok
+        light: "#4b5563", // text-gray-600. ok
+        red: "#EF4444", // text-red-600. ok
+        button: "#10B981", // bg-emerald-500 
+        buttonHover: "#047857", // hover:bg-emerald-700
+        
+        gray: {
+          200: "#E5E7EB", // bg-gray-200
+          700: "#374151", // bg-gray-700
+        },
       }
     },
   },
