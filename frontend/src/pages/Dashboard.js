@@ -43,7 +43,7 @@ const Dashboard = () => {
                     <input
                       type="number"
                       placeholder="Type here"
-                      className="input w-full"
+                      className="input w-full border-gray-300 focus:border-accentcolor focus:ring-1 focus:ring-accentcolor rounded-md"
                     />
                     <button className="button ml-2">Contribute</button>
                   </div>
@@ -64,18 +64,69 @@ const Dashboard = () => {
         </div>
 
         {/* Form Section */}
-        <div className="mt-8 bg-card p-6 shadow-md rounded-lg">
-          <h2 className="text-xl font-bold mb-4 text-dark">Create New Project</h2>
-          <p className="text-sm text-light mb-6">Fill in the details below to start a new fundraising project.</p>
-          {/* Form Elements */}
-          <form className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <input type="text" placeholder="Project Title" className="input" />
-            <input type="number" placeholder="Target Amount (ETH)" className="input" />
-            <input type="date" placeholder="Deadline" className="input" />
-            <textarea placeholder="Project Description" className="input h-24"></textarea>
-            <button className="button lg:col-span-2 w-full">Create Project</button>
-          </form>
-        </div>
+        <div className="bg-white shadow-md rounded-lg overflow-hidden p-6 w-full my-8">
+  <h1 className="font-sans font-bold text-2xl text-dark mb-6">Start a Fundraiser for Free</h1>
+  <form>
+    <div className="grid grid-cols-1 gap-6">
+      {/* Title */}
+      <div className="form-control">
+        <label className="text-sm text-dark font-semibold mb-2">Title :</label>
+        <input
+          type="text"
+          placeholder="Enter project title"
+          className="input w-full border-gray-300 focus:border-accentcolor focus:ring-1 focus:ring-accentcolor rounded-md"
+        />
+      </div>
+
+      {/* Description */}
+      <div className="form-control">
+        <label className="text-sm text-dark font-semibold mb-2">Description :</label>
+        <textarea
+          placeholder="Enter project description"
+          className="input w-full border-gray-300 focus:border-accentcolor focus:ring-1 focus:ring-accentcolor rounded-md h-32"
+        ></textarea>
+      </div>
+
+      {/* Target Contribution */}
+      <div className="form-control">
+        <label className="text-sm text-dark font-semibold mb-2">Targeted Contribution Amount :</label>
+        <input
+          type="number"
+          placeholder="Enter target amount"
+          className="input w-full border-gray-300 focus:border-accentcolor focus:ring-1 focus:ring-accentcolor rounded-md"
+        />
+      </div>
+
+      {/* Minimum Contribution */}
+      <div className="form-control">
+        <label className="text-sm text-dark font-semibold mb-2">Minimum Contribution Amount :</label>
+        <input
+          type="number"
+          placeholder="Enter minimum contribution"
+          className="input w-full border-gray-300 focus:border-accentcolor focus:ring-1 focus:ring-accentcolor rounded-md"
+        />
+      </div>
+
+      {/* Deadline */}
+      <div className="form-control">
+        <label className="text-sm text-dark font-semibold mb-2">Deadline :</label>
+        <input
+          type="date"
+          className="input w-full border-gray-300 focus:border-accentcolor focus:ring-1 focus:ring-accentcolor rounded-md"
+        />
+      </div>
+
+      {/* Submit Button */}
+      <button
+        className="mt-4 p-3 w-full bg-accentcolor text-white rounded-md hover:bg-accentcolor/80 focus:outline-none"
+        disabled
+      >
+        Start Fundraiser
+      </button>
+    </div>
+  </form>
+</div>
+
       </main>
     </div>
   );

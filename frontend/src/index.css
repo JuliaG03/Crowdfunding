@@ -6,6 +6,10 @@ body {
     @apply bg-backgroundcolor;
   }
   
+  button:disabled{
+    @apply opacity-50 cursor-not-allowed;
+  }
+
   .card {
     @apply w-full bg-slate-50 p-3 lg:p-6 shadow-md rounded-xl;
   }
@@ -19,7 +23,11 @@ body {
   }
   
   .input {
-    @apply border border-emerald-300 py-2 px-4 rounded-l-md focus:outline-none focus:ring-2 focus:ring-emerald-400 w-full;
+    @apply border border-emerald-300 py-2 px-4 focus:outline-none focus:ring-2 focus:ring-emerald-400 w-full;
+  }
+  
+  .form-control-input {
+    @apply border py-2 px-3 focus:outline-none focus:ring w-full rounded my-1;
   }
   
   .button {

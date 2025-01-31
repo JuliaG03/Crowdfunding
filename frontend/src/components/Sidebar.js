@@ -57,14 +57,19 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
       {/* User Profile */}
       <div className="p-4">
         <div className="flex items-center space-x-3">
+          <button type="button" className="bg-gray-700 flex text-sm rounded-md focus:outline-none focus:ring-0 focus:ring-offset-0 focus:ring-white" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+          <span className="sr-only">Open user menu</span>
           <img
             className={`h-10 w-10 rounded-full ${isCollapsed ? "mx-auto" : ""}`}
             src={logo}
             alt="Profile"
           />
+          </button>
           {!isCollapsed && (
             <div>
+              <button type="button" className="p-1 rounded-full text-gray-200 hover:text-gray-500">
               <span className="text-sm">Wallet address</span>
+              </button>
             </div>
           )}
         </div>
