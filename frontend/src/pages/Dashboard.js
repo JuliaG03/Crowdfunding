@@ -1,6 +1,8 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import authWrapper from "../helper/authWrapper";
 
-const projects = [1, 2, 3];
+var projects = [1, 2, 3];
 
 const Dashboard = () => {
   return (
@@ -14,11 +16,11 @@ const Dashboard = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Project Cards */}
-          {projects.map((_, i) => (
+          {projects.map((data, i) => (
             <div key={i} className="bg-card shadow-md rounded-lg overflow-hidden p-6">
               {/* Project Header */}
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-dark">Project Title</h2>
+                <Link to={`/project-details/${i}`} className="font-sans text-xl text-gray-700 font-semibold hover:text-sky-500 hover:cursor-pointer">Project Title</Link>
                 <span className="text-sm bg-accentcolor text-card px-2 py-1 rounded-full">Popular</span>
               </div>
 
@@ -132,4 +134,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default authWrapper(Dashboard);

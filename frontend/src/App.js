@@ -1,25 +1,36 @@
 import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
+import ProjectDetails from "./pages/ProjectDetails"; // Assuming ProjectDetails exists
 
-function App() {
+const App = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar */}
-      <Sidebar isCollapsed={isSidebarCollapsed} setIsCollapsed={setIsSidebarCollapsed} />
+    <Router>
+      <div className="flex h-screen">
+        {/* Sidebar */}
+        <Sidebar
+          isCollapsed={isSidebarCollapsed}
+          setIsCollapsed={setIsSidebarCollapsed}
+        />
 
-      {/* Main Content Area */}
-      <div
-        className={`flex-1 transition-all duration-300 ease-in-out ${
-          isSidebarCollapsed ? "ml-20" : "ml-64"
-        }`}
-      >
-        <Dashboard />
+        {/* Main Content Area */}
+        <div
+          className={`flex-1 transition-all duration-300 ease-in-out ${
+            isSidebarCollapsed ? "ml-20" : "ml-64"
+          }`}
+        >
+          {/* Routes */}
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/project-details/:id" element={<ProjectDetails />} />
+          </Routes>
+        </div>
       </div>
-    </div>
+    </Router>
   );
-}
+};
 
 export default App;
