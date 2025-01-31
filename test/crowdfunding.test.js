@@ -48,15 +48,18 @@ describe("Crowdfunding", () => {
       // wait for the transaction to be mined and get the event logs
       const event = await project.wait();
 
-      // check if one event was emitted (`projectStarted`)
-      expect(event.logs.length).to.equal(1);
-
-      // Decode the `projectStarted` event log to get event details
-      const decodedEvent = crowdfundingContract.interface.decodeEventLog("projectStarted", event.logs[0].data, event.logs[0].topics);
-      
+    
       // retrieve the list of projects from the contract (returns all projects created so far)
       const projectList = await crowdfundingContract.returnAllProjects();
 
+
+
+        // check if one event was emitted (`projectStarted`)
+        expect(event.logs.length).to.equal(1);
+
+        // Decode the `projectStarted` event log to get event details
+        const decodedEvent = crowdfundingContract.interface.decodeEventLog("projectStarted", event.logs[0].data, event.logs[0].topics);
+        
       // Test Event: Verify that the decoded event data matches the project created
       
       expect(decodedEvent.projectContractAddress).to.equal(projectList[0]);
@@ -70,5 +73,34 @@ describe("Crowdfunding", () => {
       expect(decodedEvent.projectDesc).to.equal(projectDesc);
 
     });
+
+    it("Get data", async function(){
+
+      const minimumContribution=etherToWei('1');
+      const deadline=dateToUNIX('2025-03-15');
+      const targetContribution=etherToWei('100');
+      const projectTitle='Testing title';
+      const projectDesc='Testing description';
+
+      await
+        crowdfundingContract.connect(address1).createProject(minimumContribution,deadline,targetContribution,projectTitle,projectDesc)
+      
+        const projectList = await crowdfundingContract.returnAllProjects();
+        const contribute = await crowdfundingContract.connect(address1).contribute(projectList[0],{value: etherToWei("4")});
+        const event = await contribute.wait();
+
+        //test ContributionReceived event
+         // check if one event was emitted (`ContributionReceived`)
+      
+      expect(event.logs.length).to.equal(2);
+      
+  
+      // Decode the `ContributionReceived` event log to get event details
+      const decodedEvent = crowdfundingContract.interface.decodeEventLog("ContributionReceived", event.logs[1].data, event.logs[1].topics);
+      expect(decodedEvent.projectAddress).to.equal(projectList[0]);
+      expect(decodedEvent.contributedAmount).to.equal(etherToWei("4"));
+      expect(decodedEvent.contributor).to.equal(address1.address);
+
+    })
   })
 });

@@ -115,17 +115,17 @@ contract Project{
     }
 
     // function for users to contribute funds to the project
-    function contribute() public validateExpiry(State.Fundraising) payable {
+    function contribute(address _contributor) public validateExpiry(State.Fundraising) payable {
         require(msg.value >= minimumContribution, 'Contribution amount is too low!');
 
         // if the contributor hasn't contributed before, increase the contributor count
-        if(contributors[msg.sender] == 0){
+        if(contributors[_contributor] == 0){
             noOfContributers++;
         }
-        contributors[msg.sender] += msg.value; // update contributor's contribution amount
+        contributors[_contributor] += msg.value; // update contributor's contribution amount
         raisedAmount += msg.value; // increase the total raised amount
 
-        emit FundingReceived(msg.sender, msg.value, raisedAmount); // emit event
+        emit FundingReceived(_contributor, msg.value, raisedAmount); // emit event
         checkFundingCompleteOrExpire(); // check if the project has met its funding goal or expired
     }
 
@@ -171,7 +171,7 @@ contract Project{
     function voteWithdrawRequest(uint256 _requestId) public {
         require(contributors[msg.sender] > 0, 'Only contributors can vote!');
         WithdrawRequest storage requestDetails = withdrawRequests[_requestId];
-        require(requestDetails.voters[msg.sender] == false, 'You already voted!');
+        require(requestDetails.voters[msg.sender] == false, 'You already voted');
         requestDetails.voters[msg.sender] = true; // mark the contributor as having voted
         requestDetails.noOfVotes++; // increment the vote count
         emit WithdrawVote(msg.sender, requestDetails.noOfVotes); // emit vote event

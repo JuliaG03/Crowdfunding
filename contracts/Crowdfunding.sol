@@ -10,7 +10,6 @@ contract Crowdfunding{
 
 // ---to do 
 // Anyone can start a funding project    (done)
-// get all project list  (done)
 // filter project 
 
 
@@ -25,6 +24,15 @@ event projectStarted(
     uint256 noOfContributors,
     string projectTitle,
     string projectDesc
+);
+
+
+event ContributionReceived(
+   address projectAddress,
+   uint256 contributedAmount,
+   address contributor
+
+
 );
 
 // array to store all created Project contracts
@@ -67,4 +75,25 @@ function createProject(
 function returnAllProjects() external view returns(Project[] memory){
    return projects;
 }
+
+function contribute(address _projectAddress) public payable{
+
+   uint256 minContributionAmount = Project(_projectAddress).minimumContribution();
+   Project.State projectState = Project(_projectAddress).state();
+   require(projectState == Project.State.Fundraising, 'Invalid state');
+   require(msg.value >= minContributionAmount, 'Contribution amount is too low!');
+ // Call function
+   Project(_projectAddress).contribute{value:msg.value}(msg.sender);
+  
+  
+   
+   //Trigger event
+   emit ContributionReceived(_projectAddress, msg.value, msg.sender);
+
+}
+
+
+
+
+
 }

@@ -50,7 +50,7 @@ describe("Project", () => {
 
         // test to check if contribution functionality works and events are emitted properly
         it("Contribute", async function () {
-            const project = await projectContract.connect(address1).contribute({value:etherToWei('4')}); // contribute 4 ether to the project
+            const project = await projectContract.contribute(address1.address,{value:etherToWei('4')}); // contribute 4 ether to the project
             const event = await project.wait(); // wait for the transaction to be mined
             
             expect(event.logs.length).to.equal(1); // ensure one event was emitted
@@ -69,12 +69,14 @@ describe("Project", () => {
 
         // test to ensure contribution reverts if below the minimum contribution amount 
         it("Should fail if amount is less than minimum contribution amount", async () => {
-            await expect(projectContract.connect(address1).contribute({value:etherToWei('0.5')})).to.be.revertedWith('Contribution amount is too low!');
+            await 
+              expect(projectContract.connect(address1).contribute(address1.address,{value:etherToWei('0.5')})).to.be.revertedWith('Contribution amount is too low!');
         })
 
         // test to check if project state changes to 'Successful' after target contribution is reached
         it("State should change to Successful if targeted amount hit", async () => {
-            await projectContract.connect(address1).contribute({value:etherToWei('12')}); // contribute 12 ether to exceed the target
+            await 
+              projectContract.contribute(address1.address,{value:etherToWei('12')}); // contribute 12 ether to exceed the target
             expect(Number(await projectContract.completeAt())).to.greaterThan(0); // ensure the project is marked complete
             expect(await projectContract.state()).to.equal(+2); // check that state is '2' (successful)
         })
@@ -100,8 +102,7 @@ describe("Project", () => {
         // test to successful withdraw request creation
         it("Request for withdraw", async () =>{
           await
-          projectContract.connect(address1).contribute({value:etherToWei("12")}); // contribute to mark the project successful
-
+            projectContract.contribute(address1.address,{value:etherToWei('12')});
           const withdrawRequest = await
                 projectContract.connect(address1).createWithdrawRequest("Testing description",etherToWei('2'),address1.address) // create a withdraw request
 
@@ -124,21 +125,20 @@ describe("Project", () => {
 
         // test to ensure only contributors can vote
         it("Only contributors can vote" , async () =>{
+          await 
+            projectContract.contribute(address1.address,{value:etherToWei('12')});
           await
-          projectContract.connect(address1).contribute({value:etherToWei('12')});
+            projectContract.connect(address1).createWithdrawRequest("Testing description", etherToWei('2'),address1.address)
           await
-          projectContract.connect(address1).createWithdrawRequest("Testing description", etherToWei('2'),address1.address)
-          await
-          expect(projectContract.connect(address2).voteWithdrawRequest(0)).to.be.revertedWith('Only contributors can vote!');
-
-        })
+          expect(projectContract.connect(address2).voteWithdrawRequest(0)).to.be.revertedWith('Only contributors can vote!')
+          })
 
         // test for successful voting by contributors
         it("Vote withdraw request", async () => {
-          await
-          projectContract.connect(address1).contribute({value:etherToWei('6')}); // contribute to the project
-          await
-          projectContract.connect(address2).contribute({value:etherToWei('7')}); // another contributor
+          await 
+            projectContract.contribute(address1.address,{value:etherToWei('6')});
+          await 
+            projectContract.contribute(address2.address,{value:etherToWei('7')});
           await
           projectContract.connect(address1).createWithdrawRequest("Testing description",etherToWei('2'),address1.address) // create withdraw request
           const voteforWithdraw = await
@@ -158,16 +158,16 @@ describe("Project", () => {
         // test to ensure that contributors can't vote twice on the same request
         it("Should fail if request already vote", async() =>{
         
-      await
-        projectContract.connect(address1).contribute({value:etherToWei('6')}); // first contribution
-      await
-        projectContract.connect(address2).contribute({value:etherToWei('7')}); // second contribution
-      await
-        projectContract.connect(address1).createWithdrawRequest("Testing description",etherToWei('2'),address1.address) // withdraw request
-      await
-        projectContract.connect(address2).voteWithdrawRequest(0) // first vote
-
-      await expect(projectContract.connect(address2).voteWithdrawRequest(0)).to.be.revertedWith('You already voted!'); // ensure second vote reverts
+          await 
+            projectContract.contribute(address1.address,{value:etherToWei('6')});
+          await 
+            projectContract.contribute(address2.address,{value:etherToWei('7')});
+          await
+            projectContract.connect(address1).createWithdrawRequest("Testing description",etherToWei('2'),address1.address) // withdraw request
+          await
+            projectContract.connect(address2).voteWithdrawRequest(0) // first vote
+          await 
+            expect(projectContract.connect(address2).voteWithdrawRequest(0)).to.be.revertedWith('You already voted'); // ensure second vote reverts
      })
     })
 
@@ -175,22 +175,22 @@ describe("Project", () => {
 
       it("Should fail if 50% contributor need to voted", async () => {
         await 
-          projectContract.connect(address1).contribute({value:etherToWei('6') });
-        await
-          projectContract.connect(address2).contribute({value:etherToWei('7') });
+          projectContract.contribute(address1.address,{value:etherToWei('6')});
+        await   
+          projectContract.contribute(address2.address,{value:etherToWei('7')});
         await
           projectContract.connect(address1).createWithdrawRequest("Testing description", etherToWei('2'),address1.address)
         await
-        expect(projectContract.connect(address1).withdrawRequestedAmount(0)).to.be.revertedWith('At least 50% of the contributors need to vote for this request');
+          expect(projectContract.connect(address1).withdrawRequestedAmount(0)).to.be.revertedWith('At least 50% of the contributors need to vote for this request');
 
       })
 
       it("Withdraw requested balance", async () =>{
 
         await 
-          projectContract.connect(address1).contribute({value:etherToWei('6')});
+          projectContract.contribute(address1.address,{value:etherToWei('6')});
         await 
-          projectContract.connect(address2).contribute({value:etherToWei('7')});
+          projectContract.contribute(address2.address,{value:etherToWei('7')});
         await
           projectContract.connect(address1).createWithdrawRequest("Testing description", etherToWei('2'), address1.address)
         await 
@@ -216,10 +216,10 @@ describe("Project", () => {
 
 
       it("Should fail if request already completed", async() => {
-        await
-          projectContract.connect(address1).contribute({value:etherToWei('6')});
-        await
-          projectContract.connect(address2).contribute({value:etherToWei('7')});
+        await 
+          projectContract.contribute(address1.address,{value:etherToWei('6')});
+        await 
+          projectContract.contribute(address2.address,{value:etherToWei('7')});
         await
           projectContract.connect(address1).createWithdrawRequest("Testing description",etherToWei('2'),address1.address)
         await 
