@@ -1,5 +1,4 @@
 import React from 'react'
-import authWrapper from '../helper/authWrapper'
 
 const ProjectDetails = () => {
   return (
@@ -58,4 +57,4 @@ const ProjectDetails = () => {
   </div>
   )
 }
-export default authWrapper(ProjectDetails)  
+export default ProjectDetails  

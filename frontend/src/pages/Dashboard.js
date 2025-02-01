@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import authWrapper from "../helper/authWrapper";
 
 var projects = [1, 2, 3];
 
@@ -134,4 +133,4 @@ const Dashboard = () => {
   );
 };
 
-export default authWrapper(Dashboard);
+export default Dashboard;
