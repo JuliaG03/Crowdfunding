@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ethers } from "ethers";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import ProjectDetails from "./pages/ProjectDetails"; // Assuming ProjectDetails exists
