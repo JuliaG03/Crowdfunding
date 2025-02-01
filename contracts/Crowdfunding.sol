@@ -72,8 +72,14 @@ function createProject(
 
 // function to return all projects created
 // external view function that allows anyone to retrieve the list of all projects
-function returnAllProjects() external view returns(Project[] memory){
-   return projects;
+function returnAllProjects() external view returns (address[] memory) {
+    address[] memory projectAddresses = new address[](projects.length);
+    
+    for (uint i = 0; i < projects.length; i++) {
+        projectAddresses[i] = address(projects[i]);  // store the address of each Project
+    }
+    
+    return projectAddresses;
 }
 
 function contribute(address _projectAddress) public payable{

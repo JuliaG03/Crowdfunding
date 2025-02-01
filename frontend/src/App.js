@@ -98,7 +98,8 @@ const App = () => {
             >
               {/* Routes */}
               <Routes>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/" element={<Dashboard 
+                provider={provider}/>} />
                 <Route path="/project-details/:id" element={<ProjectDetails />} />
               </Routes>
             </div>

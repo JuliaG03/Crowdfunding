@@ -26,7 +26,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, account, balance }) => {
       {/* Navigation Links */}
       <nav className="flex-1 p-4 space-y-4">
         <Link
-          to="/dashboard"
+          to="/"
           className="block py-2 px-3 rounded-lg bg-gray-700 hover:bg-accentcolor flex items-center space-x-3"
         >
           <span>🏠</span>
