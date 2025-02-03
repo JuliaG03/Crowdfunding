@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import { Link } from "react-router-dom";
 import CrowdfundingABI from "../Crowdfunding.json"; // Assuming this is the ABI file for your contract
+import ProjectABI from "../Project.json";
 
 const crowdfundingAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"; // Replace with actual contract address
 
@@ -28,55 +29,57 @@ const [isSubmitting, setIsSubmitting] = useState(false);
       signer
     );
   
-
-
-    
     try {
-      console.log("Fetching project addresses...");
-
-      // Log the raw result before decoding
-      const rawResult = await crowdfundingContract.returnAllProjects.staticCall();
-      console.log("Raw Result:", rawResult);
-  
-      // Fetch the project addresses from the contract
+      // Obține toate adresele proiectelor
       const projectAddresses = await crowdfundingContract.returnAllProjects();
-      console.log("Project Addresses:", projectAddresses); // Debugging output
+      console.log(projectAddresses);
+      // Inițializează un array pentru a stoca detaliile proiectelor
   
+      const fetchedProjects = await Promise.all(
+        projectAddresses.map(async (projectAddress) => {
+          // Create a contract instance for each project
+          const projectContract = new ethers.Contract(projectAddress, ProjectABI.abi, signer);
 
-      // Fetch details for each project
-      const fundraisers = await Promise.all(
-        projectAddresses.map(async (address) => {
-          const projectContract = new ethers.Contract(address, CrowdfundingABI.abi, signer);
-  
-          const projectTitle = await projectContract.projectTitle;
-          console.log(projectTitle);
-          const projectDesc = await projectContract.projectDesc;
-          const targetContribution = ethers.formatEther(await projectContract.targetContribution);
-          const raisedAmount = ethers.formatEther(await projectContract.raisedAmount);
-          const minimumContribution = ethers.formatEther(await projectContract.minimumContribution);
-          const deadline = await projectContract.deadline;
-  
-          
+          // Fetch details from the project contract
+          const title = await projectContract.projectTitle();
+          const description = await projectContract.projectDes();
+          const targetContribution = await projectContract.targetContribution();
+          const raisedAmount = await projectContract.raisedAmount();
+          const deadline = new Date(Number(await projectContract.deadline()) * 1000).toLocaleDateString();
+          const state = Number(await projectContract.state());
+          const minimumContribution = await projectContract.minimumContribution();
 
+
+          console.log("title:",title);
+          console.log("description",description);
+          console.log("target:",targetContribution);
+          console.log("raised:",raisedAmount);
+          console.log("deadline:",deadline);
+          console.log("state:",state);
+          console.log("minimumContribution:",minimumContribution);
+          console.log("\n\n");                                        
+
+          // Return the structured project details
           return {
-            address: address,
-            title: projectTitle,
-            description: projectDesc,
-            targetContribution,
-            raisedAmount,
-            minimumContribution,
-            deadline: new Date(deadline.toNumber() * 1000).toLocaleString(),
-            state: await projectContract.state(),
+            address: projectAddress,
+            title,
+            description,
+            targetContribution: ethers.formatEther(targetContribution), // Convert to ETH
+            raisedAmount: ethers.formatEther(raisedAmount),
+            deadline,
+            state, // 0: Fundraising, 1: Expired, 2: Successful
+            minimumContribution: ethers.formatEther(minimumContribution)
           };
         })
       );
-  
-      setFundraisings(fundraisers);
+
+      // Set the fetched projects to the state
+      setFundraisings(fetchedProjects);
     } catch (error) {
       console.error("Error fetching projects:", error);
-      setFundraisings([]);
     }
   };
+
   
   
   
@@ -139,7 +142,8 @@ const [isSubmitting, setIsSubmitting] = useState(false);
       // Convert the contribution amounts and deadline into the appropriate formats
       const minContributionInWei = ethers.parseUnits(minimumContribution, "ether");
       const targetContributionInWei = ethers.parseUnits(targetContribution, "ether");
-      const deadlineTimestamp = new Date(deadline).getTime() / 1000; // Convert to UNIX timestamp (in seconds)
+      const deadlineTimestamp = Math.floor(new Date(deadline).getTime() / 1000);
+      // Convert to UNIX timestamp (in seconds)
   
       // Call the smart contract's createProject function
       const tx = await crowdfundingContract.createProject(

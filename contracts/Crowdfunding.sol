@@ -46,9 +46,6 @@ function createProject(
     string memory projectTitle,
     string memory projectDesc
  ) public {
-   // set the deadline as the current timestamp plus the duration passed as input
-   deadline = block.timestamp+deadline;
-
    // create a new Project contract using provided parameters
    Project newProject = new Project(msg.sender,minimumContribution,deadline,targetContribution,projectTitle,projectDesc);
    
