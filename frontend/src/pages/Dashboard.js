@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import CrowdfundingABI from "../Crowdfunding.json"; // Assuming this is the ABI file for your contract
 import ProjectABI from "../Project.json";
 
-const crowdfundingAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"; // Replace with actual contract address
+const crowdfundingAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Replace with actual contract address
 
 const Dashboard = ({ provider }) => {
   const [fundraisings, setFundraisings] = useState([]);
@@ -29,6 +29,8 @@ const [isSubmitting, setIsSubmitting] = useState(false);
       signer
     );
   
+    setContract(crowdfundingContract);
+
     try {
       // Obține toate adresele proiectelor
       const projectAddresses = await crowdfundingContract.returnAllProjects();
@@ -48,16 +50,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
           const deadline = new Date(Number(await projectContract.deadline()) * 1000).toLocaleDateString();
           const state = Number(await projectContract.state());
           const minimumContribution = await projectContract.minimumContribution();
-
-
-          console.log("title:",title);
-          console.log("description",description);
-          console.log("target:",targetContribution);
-          console.log("raised:",raisedAmount);
-          console.log("deadline:",deadline);
-          console.log("state:",state);
-          console.log("minimumContribution:",minimumContribution);
-          console.log("\n\n");                                        
+                                     
 
           // Return the structured project details
           return {
@@ -86,6 +79,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     loadFundraisings();
+    
   }, [provider]);
 
   // Handle contribution
@@ -104,6 +98,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
       });
       await tx.wait();
       alert("Contribution successful!");
+      loadFundraisings();
     } catch (error) {
       console.error("Error with contribution:", error);
       alert(`Error: ${error.message}`);
@@ -161,6 +156,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
   
       // Notify the user that the project was created successfully
       alert("Fundraiser created successfully!");
+      loadFundraisings();
     } catch (error) {
       // Log and show an error message if something goes wrong
       console.error("Error creating fundraiser:", error);
@@ -200,7 +196,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                     {fund.title}
                   </Link>
                   <span className="text-sm bg-accentcolor text-card px-2 py-1 rounded-full">
-                    {fund.state === 0 ? "Fundraising" : "Completed"}
+                    {fund.state === 0 ? "Fundraising" : fund.state === 1 ? "Expired" : "Successful"}
                   </span>
                 </div>
 
