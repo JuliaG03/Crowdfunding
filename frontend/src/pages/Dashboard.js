@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { Link } from "react-router-dom";
 import CrowdfundingABI from "../Crowdfunding.json"; // Assuming this is the ABI file for your contract
 
-const crowdfundingAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Replace with actual contract address
+const crowdfundingAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"; // Replace with actual contract address
 
 const Dashboard = ({ provider }) => {
   const [fundraisings, setFundraisings] = useState([]);
@@ -28,23 +28,36 @@ const [isSubmitting, setIsSubmitting] = useState(false);
       signer
     );
   
+
+
+    
     try {
+      console.log("Fetching project addresses...");
+
+      // Log the raw result before decoding
+      const rawResult = await crowdfundingContract.returnAllProjects.staticCall();
+      console.log("Raw Result:", rawResult);
+  
       // Fetch the project addresses from the contract
       const projectAddresses = await crowdfundingContract.returnAllProjects();
       console.log("Project Addresses:", projectAddresses); // Debugging output
   
+
       // Fetch details for each project
       const fundraisers = await Promise.all(
         projectAddresses.map(async (address) => {
           const projectContract = new ethers.Contract(address, CrowdfundingABI.abi, signer);
   
-          const projectTitle = await projectContract.projectTitle();
-          const projectDesc = await projectContract.projectDesc();
-          const targetContribution = ethers.formatEther(await projectContract.targetContribution());
-          const raisedAmount = ethers.formatEther(await projectContract.raisedAmount());
-          const minimumContribution = ethers.formatEther(await projectContract.minimumContribution());
-          const deadline = await projectContract.deadline();
+          const projectTitle = await projectContract.projectTitle;
+          console.log(projectTitle);
+          const projectDesc = await projectContract.projectDesc;
+          const targetContribution = ethers.formatEther(await projectContract.targetContribution);
+          const raisedAmount = ethers.formatEther(await projectContract.raisedAmount);
+          const minimumContribution = ethers.formatEther(await projectContract.minimumContribution);
+          const deadline = await projectContract.deadline;
   
+          
+
           return {
             address: address,
             title: projectTitle,
@@ -137,6 +150,8 @@ const [isSubmitting, setIsSubmitting] = useState(false);
         projectDesc
       );
   
+
+      
       // Wait for the transaction to be mined
       await tx.wait();
   
