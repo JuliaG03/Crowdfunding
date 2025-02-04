@@ -44,7 +44,7 @@ contract Project{
         string public projectDes;
         State public state = State.Fundraising; 
 
-
+        
         // mappings to store contributions and withdraw requests
 
         // tracks how much each address has contributed

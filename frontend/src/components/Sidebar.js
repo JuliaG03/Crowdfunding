@@ -46,13 +46,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, account, balance }) => {
           <span>📊</span>
           {!isCollapsed && <span>My Fundraising</span>}
         </Link>
-        <Link
-          to="/calendar"
-          className="block py-2 px-3 rounded-lg hover:bg-gray-700 flex items-center space-x-3"
-        >
-          <span>📅</span>
-          {!isCollapsed && <span>Calendar</span>}
-        </Link>
+
       </nav>
 
       {/* Wallet Info (Account and Balance) */}

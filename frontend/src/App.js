@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import ProjectDetails from "./pages/ProjectDetails"; // Assuming ProjectDetails exists
+import Contribution from "./pages/Contribution";
+import Fundraising from "./pages/Fundraising";
+
 import { ethers } from "ethers"; // Make sure ethers is imported
 
 const App = () => {
@@ -68,7 +71,6 @@ const App = () => {
     }
   }, []);
 
-  // Render the button to connect wallet or main content based on account
   return (
     <Router>
       <div className="flex h-screen">
@@ -146,7 +148,12 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<Dashboard 
                 provider={provider}/>} />
-                <Route path="/project-details/:id" element={<ProjectDetails />} />
+                <Route path="/project-details/:projectAddress" element={<ProjectDetails provider={provider}/>} />
+                <Route path="/contribution" element={<Contribution
+                provider={provider} />} />
+                <Route path="/fundraising" element={<Fundraising  provider={provider}/>} />
+                <Route path="*" element={<h1>Not Found</h1>} />
+               
               </Routes>
             </div>
           </>

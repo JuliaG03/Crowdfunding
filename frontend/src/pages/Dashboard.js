@@ -1,48 +1,41 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import { Link } from "react-router-dom";
-import CrowdfundingABI from "../Crowdfunding.json"; // Assuming this is the ABI file for your contract
+import CrowdfundingABI from "../Crowdfunding.json"; 
 import ProjectABI from "../Project.json";
 
-const crowdfundingAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Replace with actual contract address
+const crowdfundingAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; 
 
 const Dashboard = ({ provider }) => {
   const [fundraisings, setFundraisings] = useState([]);
-  const [contributionAmounts, setContributionAmounts] = useState({}); // Store contribution amounts
+  const [contributionAmounts, setContributionAmounts] = useState({});
   const [contract, setContract] = useState(null);
   const [projectTitle, setProjectTitle] = useState("");
-const [projectDesc, setProjectDesc] = useState("");
-const [targetContribution, setTargetContribution] = useState("");
-const [minimumContribution, setMinimumContribution] = useState("");
-const [deadline, setDeadline] = useState("");
-const [isSubmitting, setIsSubmitting] = useState(false);
+  const [projectDesc, setProjectDesc] = useState("");
+  const [targetContribution, setTargetContribution] = useState("");
+  const [minimumContribution, setMinimumContribution] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-
-  // Load the Crowdfunding contract and fetch projects
   const loadFundraisings = async () => {
     if (!provider) return;
-  
+
     const signer = await provider.getSigner();
     const crowdfundingContract = new ethers.Contract(
       crowdfundingAddress,
       CrowdfundingABI.abi,
       signer
     );
-  
+
     setContract(crowdfundingContract);
 
     try {
-      // Obține toate adresele proiectelor
       const projectAddresses = await crowdfundingContract.returnAllProjects();
-      console.log(projectAddresses);
-      // Inițializează un array pentru a stoca detaliile proiectelor
-  
+
       const fetchedProjects = await Promise.all(
         projectAddresses.map(async (projectAddress) => {
-          // Create a contract instance for each project
           const projectContract = new ethers.Contract(projectAddress, ProjectABI.abi, signer);
 
-          // Fetch details from the project contract
           const title = await projectContract.projectTitle();
           const description = await projectContract.projectDes();
           const targetContribution = await projectContract.targetContribution();
@@ -50,39 +43,26 @@ const [isSubmitting, setIsSubmitting] = useState(false);
           const deadline = new Date(Number(await projectContract.deadline()) * 1000).toLocaleDateString();
           const state = Number(await projectContract.state());
           const minimumContribution = await projectContract.minimumContribution();
-                                     
 
-          // Return the structured project details
           return {
             address: projectAddress,
             title,
             description,
-            targetContribution: ethers.formatEther(targetContribution), // Convert to ETH
+            targetContribution: ethers.formatEther(targetContribution),
             raisedAmount: ethers.formatEther(raisedAmount),
             deadline,
-            state, // 0: Fundraising, 1: Expired, 2: Successful
-            minimumContribution: ethers.formatEther(minimumContribution)
+            state,
+            minimumContribution: ethers.formatEther(minimumContribution),
           };
         })
       );
 
-      // Set the fetched projects to the state
       setFundraisings(fetchedProjects);
     } catch (error) {
       console.error("Error fetching projects:", error);
     }
   };
 
-  
-  
-  
-
-  useEffect(() => {
-    loadFundraisings();
-    
-  }, [provider]);
-
-  // Handle contribution
   const contribute = async (projectAddress) => {
     if (!contract) return;
     const amount = contributionAmounts[projectAddress];
@@ -107,40 +87,27 @@ const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCreateProject = async (e) => {
     e.preventDefault();
-  
-    // Validate all form fields before proceeding
+
     if (!projectTitle || !projectDesc || !minimumContribution || !targetContribution || !deadline) {
       alert("All fields are required!");
       return;
     }
-  
-    // Check if the provider exists, if not, alert the user
+
     if (!provider) {
       alert("Please connect your wallet!");
       return;
     }
-  
-    // Set the submitting state to true while waiting for the transaction
+
     setIsSubmitting(true);
-  
+
     try {
-      // Get the signer from the provider
       const signer = await provider.getSigner();
-  
-      // Create the contract instance using the signer
-      const crowdfundingContract = new ethers.Contract(
-        crowdfundingAddress,
-        CrowdfundingABI.abi,
-        signer
-      );
-  
-      // Convert the contribution amounts and deadline into the appropriate formats
+      const crowdfundingContract = new ethers.Contract(crowdfundingAddress, CrowdfundingABI.abi, signer);
+
       const minContributionInWei = ethers.parseUnits(minimumContribution, "ether");
       const targetContributionInWei = ethers.parseUnits(targetContribution, "ether");
       const deadlineTimestamp = Math.floor(new Date(deadline).getTime() / 1000);
-      // Convert to UNIX timestamp (in seconds)
-  
-      // Call the smart contract's createProject function
+
       const tx = await crowdfundingContract.createProject(
         minContributionInWei,
         deadlineTimestamp,
@@ -148,46 +115,36 @@ const [isSubmitting, setIsSubmitting] = useState(false);
         projectTitle,
         projectDesc
       );
-  
 
-      
-      // Wait for the transaction to be mined
       await tx.wait();
-  
-      // Notify the user that the project was created successfully
       alert("Fundraiser created successfully!");
       loadFundraisings();
     } catch (error) {
-      // Log and show an error message if something goes wrong
       console.error("Error creating fundraiser:", error);
       alert("Error creating fundraiser. Please try again.");
     } finally {
-      // Set submitting state to false after the transaction is done
       setIsSubmitting(false);
     }
   };
-  
-  
 
+  useEffect(() => {
+    loadFundraisings();
+  }, [provider]);
 
-  
   return (
-    <div className="min-h-screen">
-      {/* Main Content */}
-      <main className="flex-1 bg-backgroundcolor p-6">
+    <div className="min-h-screen bg-backgroundcolor p-6">
+      <main className="flex-1">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-dark">Projects</h1>
           <p className="text-sm text-light">Here are your ongoing projects</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Project Cards */}
           {fundraisings.length === 0 ? (
             <p>No active fundraisers available.</p>
           ) : (
             fundraisings.map((fund, index) => (
               <div key={index} className="bg-card shadow-md rounded-lg overflow-hidden p-6">
-                {/* Project Header */}
                 <div className="flex justify-between items-center mb-4">
                   <Link
                     to={`/project-details/${fund.address}`}
@@ -200,10 +157,8 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                   </span>
                 </div>
 
-                {/* Project Description */}
                 <p className="text-sm text-light mb-4">{fund.description}</p>
 
-                {/* Project Details and Contribution */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <div className="bg-accentcolor-light p-4 rounded-md">
                     <p className="text-dark font-bold">Target Contribution</p>
@@ -212,20 +167,20 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                     <p className="text-light">{fund.deadline}</p>
                   </div>
                   <div className="p-4">
-                    <label className="text-sm text-gray-700 font-semibold">
-                      Contribution Amount:
-                    </label>
+                    <label className="text-sm text-gray-700 font-semibold">Contribution Amount:</label>
                     <div className="flex mt-2">
                       <input
                         type="number"
                         placeholder="Type here"
                         value={contributionAmounts[fund.address] || ""}
-                        onChange={(e) => setContributionAmounts({
-                          ...contributionAmounts,
-                          [fund.address]: e.target.value,
-                        })}
+                        onChange={(e) =>
+                          setContributionAmounts({
+                            ...contributionAmounts,
+                            [fund.address]: e.target.value,
+                          })
+                        }
                         className="input w-full border-gray-300 focus:border-accentcolor focus:ring-1 focus:ring-accentcolor rounded-md"
-                        disabled={fund.state !== 0} // Disable if project is not fundraising
+                        disabled={fund.state !== 0}
                       />
                       <button
                         className="button ml-2"
@@ -241,7 +196,6 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                   </div>
                 </div>
 
-                {/* Progress Bar */}
                 <div className="w-full bg-gray-200 rounded-full mt-4">
                   <div className="progress bg-accentcolor" style={{ width: `${(fund.raisedAmount / fund.targetContribution) * 100}%` }}>
                     {((fund.raisedAmount / fund.targetContribution) * 100).toFixed(2)}%
@@ -252,12 +206,10 @@ const [isSubmitting, setIsSubmitting] = useState(false);
           )}
         </div>
 
-        {/* Form Section */}
         <div className="bg-white shadow-md rounded-lg overflow-hidden p-6 w-full my-8">
           <h1 className="font-sans font-bold text-2xl text-dark mb-6">Start a Fundraiser for Free</h1>
           <form onSubmit={handleCreateProject}>
             <div className="grid grid-cols-1 gap-6">
-              {/* Title */}
               <div className="form-control">
                 <label className="text-sm text-dark font-semibold mb-2">Title :</label>
                 <input
@@ -269,7 +221,6 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                 />
               </div>
 
-              {/* Description */}
               <div className="form-control">
                 <label className="text-sm text-dark font-semibold mb-2">Description :</label>
                 <textarea
@@ -280,7 +231,6 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                 ></textarea>
               </div>
 
-              {/* Target Contribution */}
               <div className="form-control">
                 <label className="text-sm text-dark font-semibold mb-2">Targeted Contribution Amount :</label>
                 <input
@@ -292,9 +242,8 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                 />
               </div>
 
-              {/* Minimum Contribution */}
               <div className="form-control">
-                <label className="text-sm text-dark font-semibold mb-2">Minimum Contribution Amount :</label>
+                <label className="text-sm text-dark font-semibold mb-2">Minimum Contribution :</label>
                 <input
                   type="number"
                   placeholder="Enter minimum contribution"
@@ -304,7 +253,6 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                 />
               </div>
 
-              {/* Deadline */}
               <div className="form-control">
                 <label className="text-sm text-dark font-semibold mb-2">Deadline :</label>
                 <input
@@ -315,18 +263,14 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                 />
               </div>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                className="mt-4 p-3 w-full bg-accentcolor text-white rounded-md hover:bg-accentcolor/80 focus:outline-none"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Starting Fundraiser..." : "Start Fundraiser"}
-              </button>
+              <div className="mt-6">
+                <button type="submit" className="button" disabled={isSubmitting}>
+                  {isSubmitting ? "Creating..." : "Create Fundraiser"}
+                </button>
+              </div>
             </div>
           </form>
         </div>
-
       </main>
     </div>
   );
