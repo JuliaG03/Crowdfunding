@@ -7,15 +7,10 @@ const ProjectDetails = ({ provider }) => {
   const { projectAddress } = useParams(); // Get the project address from the URL
   const [project, setProject] = useState(null); // Store project details
   const [isCreator, setIsCreator] = useState(false); // Check if the user is the creator
-  const [isContributor, setIsContributor] = useState(false); // Check if the user is a contributor
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
   const [withdrawRequests, setWithdrawRequests] = useState([]); // Store withdraw requests
-  const [newWithdrawRequest, setNewWithdrawRequest] = useState({
-    description: "",
-    amount: "",
-    recipient: "",
-  }); // State for new withdraw request
+  const [isWithdrawCompleted, setIsWithdrawCompleted] = useState(false); // Track if withdrawal is completed
 
   const loadProjectDetails = useCallback(async () => {
     if (!provider || !projectAddress) {
@@ -50,13 +45,10 @@ const ProjectDetails = ({ provider }) => {
       const creator = await projectContract.creator();
       const noOfWithdrawRequests = await projectContract.noOfWithdrawRequests;
 
-      // Check if the user is the creator or a contributor
+      // Check if the user is the creator
       setIsCreator(creator.toLowerCase() === userAddress.toLowerCase());
 
-      const contributors = await projectContract.contributors(userAddress);
-      setIsContributor(contributors > 0); // User is a contributor if they have contributed
-
-      // Load all withdrawal requests dynamically
+      // Fetch all withdrawal requests
       const requests = [];
       for (let i = 0; i < noOfWithdrawRequests; i++) {
         const request = await projectContract.withdrawRequests(i);
@@ -70,7 +62,11 @@ const ProjectDetails = ({ provider }) => {
         });
       }
 
-      // Update state with project details
+      // Check if any withdrawal request is already completed
+      const isCompleted = requests.some((request) => request.isCompleted);
+      setIsWithdrawCompleted(isCompleted);
+
+      // Update state with project details and withdrawal requests
       setProject({
         title,
         description,
@@ -78,7 +74,6 @@ const ProjectDetails = ({ provider }) => {
         raisedAmount,
         deadline,
         state,
-        noOfContributers: await projectContract.noOfContributers(),
       });
       setWithdrawRequests(requests);
       setLoading(false);
@@ -95,8 +90,8 @@ const ProjectDetails = ({ provider }) => {
     }
   }, [provider, projectAddress, loadProjectDetails]);
 
-  // Function to handle creating a new withdraw request
-  const handleCreateWithdrawRequest = async () => {
+  // Function to handle fund withdrawal
+  const handleWithdraw = async () => {
     if (!provider || !projectAddress) return;
 
     const signer = await provider.getSigner();
@@ -107,67 +102,12 @@ const ProjectDetails = ({ provider }) => {
     );
 
     try {
-      const tx = await projectContract.createWithdrawRequest(
-        newWithdrawRequest.description,
-        ethers.parseEther(newWithdrawRequest.amount),
-        newWithdrawRequest.recipient
-      );
-      await tx.wait();
-      alert("Withdraw request created successfully!");
-
-      // Clear the form
-      setNewWithdrawRequest({ description: "", amount: "", recipient: "" });
-
-      // Reload project details to reflect the new request
-      loadProjectDetails();
-    } catch (error) {
-      console.error("Error creating withdraw request:", error);
-      alert(`Error: ${error.message}`);
-    }
-  };
-
-  // Function to handle voting for withdrawal requests
-  const handleVote = async (requestId) => {
-    if (!provider || !projectAddress) return;
-
-    const signer = await provider.getSigner();
-    const projectContract = new ethers.Contract(
-      projectAddress,
-      ProjectABI.abi,
-      signer
-    );
-
-    try {
-      const tx = await projectContract.voteWithdrawRequest(requestId);
-      await tx.wait();
-      alert("You have successfully voted for the withdrawal!");
-
-      // Reload the project details to reflect new votes
-      loadProjectDetails();
-    } catch (error) {
-      console.error("Error voting for withdrawal:", error);
-      alert(`Error: ${error.message}`);
-    }
-  };
-
-  // Function to handle fund withdrawal by the creator
-  const handleWithdraw = async (requestId) => {
-    if (!provider || !projectAddress) return;
-
-    const signer = await provider.getSigner();
-    const projectContract = new ethers.Contract(
-      projectAddress,
-      ProjectABI.abi,
-      signer
-    );
-
-    try {
+      // Example withdraw request ID, this would usually be dynamically created
+      const requestId = 0; // Adjust as per actual logic for request ID
       const tx = await projectContract.withdrawRequestedAmount(requestId); // Use the request ID
       await tx.wait();
       alert("Funds withdrawn successfully!");
-
-      // Reload project details to reflect the withdrawal
-      loadProjectDetails();
+      setIsWithdrawCompleted(true); // Mark withdrawal as completed
     } catch (error) {
       console.error("Error withdrawing funds:", error);
       alert(`Error: ${error.message}`);
@@ -221,96 +161,36 @@ const ProjectDetails = ({ provider }) => {
             <div className="flex justify-between">
               <span className="text-gray-700 font-medium">Status</span>
               <span
-                className={`font-semibold ${project.state === 0 ? "text-blue-600" : project.state === 1 ? "text-red-600" : "text-green-600"}`}
+                className={`font-semibold ${
+                  project.state === 0
+                    ? "text-blue-600"
+                    : project.state === 1
+                    ? "text-red-600"
+                    : "text-green-600"
+                }`}
               >
-                {project.state === 0 ? "Fundraising" : project.state === 1 ? "Expired" : "Successful"}
+                {project.state === 0
+                  ? "Fundraising"
+                  : project.state === 1
+                  ? "Expired"
+                  : "Successful"}
               </span>
             </div>
           </div>
 
-          {/* Withdraw request form for the creator */}
+          {/* Withdraw button for the creator if the project is successful */}
           {isCreator && project.state === 2 && (
-            <div className="mt-6">
-              <h3 className="font-semibold text-lg">Create Withdraw Request</h3>
-              <div className="space-y-4 mt-4">
-                <input
-                  type="text"
-                  placeholder="Description"
-                  value={newWithdrawRequest.description}
-                  onChange={(e) =>
-                    setNewWithdrawRequest({
-                      ...newWithdrawRequest,
-                      description: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border rounded-md"
-                />
-                <input
-                  type="text"
-                  placeholder="Amount (ETH)"
-                  value={newWithdrawRequest.amount}
-                  onChange={(e) =>
-                    setNewWithdrawRequest({
-                      ...newWithdrawRequest,
-                      amount: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border rounded-md"
-                />
-                <input
-                  type="text"
-                  placeholder="Recipient Address"
-                  value={newWithdrawRequest.recipient}
-                  onChange={(e) =>
-                    setNewWithdrawRequest({
-                      ...newWithdrawRequest,
-                      recipient: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border rounded-md"
-                />
-                <button
-                  onClick={handleCreateWithdrawRequest}
-                  className="w-full bg-accentcolor text-white py-2 px-4 rounded-md hover:bg-accentcolor/80 transition-colors"
-                >
-                  Create Withdraw Request
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Withdraw requests and voting for contributors */}
-          {isContributor && project.state === 2 && (
-            <div className="mt-6">
-              <h3 className="font-semibold text-lg">Withdraw Requests</h3>
-              <div className="space-y-4 mt-4">
-                {withdrawRequests.map((request) => (
-                  <div key={request.id} className="bg-white shadow-lg p-4 rounded-md border">
-                    <h4 className="font-semibold">{request.description}</h4>
-                    <p className="text-sm text-gray-600">{request.amount} ETH</p>
-                    <p className="text-sm text-gray-600">
-                      Votes: {request.noOfVotes} / {Math.ceil(project.noOfContributers / 2)} required
-                    </p>
-                    {!request.isCompleted && (
-                      <button
-                        onClick={() => handleVote(request.id)}
-                        className="mt-4 bg-accentcolor text-white py-2 px-4 rounded-md hover:bg-accentcolor/80 transition-colors"
-                      >
-                        Vote for Withdrawal
-                      </button>
-                    )}
-                    {isCreator && request.noOfVotes >= Math.ceil(project.noOfContributers / 2) && (
-                      <button
-                        onClick={() => handleWithdraw(request.id)}
-                        className="mt-4 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors"
-                      >
-                        Withdraw Funds
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
+            <button
+              onClick={handleWithdraw}
+              disabled={isWithdrawCompleted} // Disable if withdrawal is already completed
+              className={`mt-6 w-full bg-accentcolor text-white py-2 px-4 rounded-md ${
+                isWithdrawCompleted
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-accentcolor/80"
+              } transition-colors`}
+            >
+              {isWithdrawCompleted ? "Withdrawal Completed" : "Withdraw Funds"}
+            </button>
           )}
         </div>
       </div>

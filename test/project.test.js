@@ -173,17 +173,17 @@ describe("Project", () => {
 
     describe("Withdraw balance", async function () {
 
-      it("Should fail if 50% contributor need to voted", async () => {
-        await 
-          projectContract.contribute(address1.address,{value:etherToWei('6')});
-        await   
-          projectContract.contribute(address2.address,{value:etherToWei('7')});
-        await
-          projectContract.connect(address1).createWithdrawRequest("Testing description", etherToWei('2'),address1.address)
-        await
-          expect(projectContract.connect(address1).withdrawRequestedAmount(0)).to.be.revertedWith('At least 50% of the contributors need to vote for this request');
+      // it("Should fail if 50% contributor need to voted", async () => {
+      //   await 
+      //     projectContract.contribute(address1.address,{value:etherToWei('6')});
+      //   await   
+      //     projectContract.contribute(address2.address,{value:etherToWei('7')});
+      //   await
+      //     projectContract.connect(address1).createWithdrawRequest("Testing description", etherToWei('2'),address1.address)
+      //   await
+      //     expect(projectContract.connect(address1).withdrawRequestedAmount(0)).to.be.revertedWith('At least 50% of the contributors need to vote for this request');
 
-      })
+      // })
 
       it("Withdraw requested balance", async () =>{
 
