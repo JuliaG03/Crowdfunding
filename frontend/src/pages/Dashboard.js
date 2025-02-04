@@ -144,7 +144,7 @@ const Dashboard = ({ provider }) => {
             <p>No active fundraisers available.</p>
           ) : (
             fundraisings.map((fund, index) => (
-              <div key={index} className="bg-card shadow-md rounded-lg overflow-hidden p-6">
+              <div key={index} className="bg-card shadow-md rounded-lg overflow-hidden p-6 transition-transform transform hover:scale-105 hover:shadow-2xl">
                 <div className="flex justify-between items-center mb-4">
                   <Link
                     to={`/project-details/${fund.address}`}
@@ -197,16 +197,22 @@ const Dashboard = ({ provider }) => {
                 </div>
 
                 <div className="w-full bg-gray-200 rounded-full mt-4">
-                  <div className="progress bg-accentcolor" style={{ width: `${(fund.raisedAmount / fund.targetContribution) * 100}%` }}>
-                    {((fund.raisedAmount / fund.targetContribution) * 100).toFixed(2)}%
-                  </div>
+                <div
+                className="progress bg-accentcolor"
+                style={{
+                  width: `${Math.min((fund.raisedAmount / fund.targetContribution) * 100, 100)}%`
+                }}
+              >
+                {Math.min((fund.raisedAmount / fund.targetContribution) * 100, 100).toFixed(2)}%
+              </div>
+
                 </div>
               </div>
             ))
           )}
         </div>
 
-        <div className="bg-white shadow-md rounded-lg overflow-hidden p-6 w-full my-8">
+        <div className="bg-white shadow-md rounded-lg overflow-hidden p-6 w-full my-8 ">
           <h1 className="font-sans font-bold text-2xl text-dark mb-6">Start a Fundraiser for Free</h1>
           <form onSubmit={handleCreateProject}>
             <div className="grid grid-cols-1 gap-6">

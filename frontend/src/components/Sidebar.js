@@ -1,9 +1,13 @@
 import React from "react";
 import { Menu } from "../icons/Icons"; // Assuming Menu is an icon
 import logo from "../logo.svg"; // Assuming this is the logo image
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ isCollapsed, setIsCollapsed, account, balance }) => {
+  const location = useLocation(); // Get current location
+
+  // Function to check if the current link is active
+  const isActive = (path) => location.pathname === path;
   return (
     <aside
       className={`bg-dark text-card flex flex-col transition-all duration-300 fixed top-0 left-0 h-screen ${
@@ -23,47 +27,44 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, account, balance }) => {
         </button>
       </div>
 
-      {/* Navigation Links */}
-      <nav className="flex-1 p-4 space-y-4">
+       {/* Navigation Links */}
+       <nav className="flex-1 p-4 space-y-4">
         <Link
           to="/"
-          className="block py-2 px-3 rounded-lg bg-gray-700 hover:bg-accentcolor flex items-center space-x-3"
+          className={`block py-2 px-3 rounded-lg flex items-center space-x-3 ${isActive("/") ? "bg-accentcolor" : "hover:bg-gray-700"}`}
         >
           <span>🏠</span>
           {!isCollapsed && <span>Dashboard</span>}
         </Link>
         <Link
           to="/contribution"
-          className="block py-2 px-3 rounded-lg hover:bg-gray-700 flex items-center space-x-3"
+          className={`block py-2 px-3 rounded-lg flex items-center space-x-3 ${isActive("/contribution") ? "bg-accentcolor" : "hover:bg-gray-700"}`}
         >
           <span>💰</span>
           {!isCollapsed && <span>My Contribution</span>}
         </Link>
         <Link
           to="/fundraising"
-          className="block py-2 px-3 rounded-lg hover:bg-gray-700 flex items-center space-x-3"
+          className={`block py-2 px-3 rounded-lg flex items-center space-x-3 ${isActive("/fundraising") ? "bg-accentcolor" : "hover:bg-gray-700"}`}
         >
           <span>📊</span>
           {!isCollapsed && <span>My Fundraising</span>}
         </Link>
-
       </nav>
 
-      {/* Wallet Info (Account and Balance) */}
+      {/* Wallet Info */}
       {account && (
-        <div className="p-4 mt-auto">
+        <div className="p-4 mt-auto bg-gray-700 rounded-b-lg">
           <div className="flex items-center space-x-3">
-            {/* Profile Icon */}
             <img
-              className={`h-10 w-10 rounded-full ${isCollapsed ? "mx-auto" : ""}`}
+              className="h-10 w-10 rounded-full border border-gray-500"
               src={logo}
               alt="Profile"
             />
-            {/* Wallet Address and Balance */}
             {!isCollapsed && (
-              <div className="text-sm text-gray-200">
-                <p>{account}</p>
-                <p>{balance} ETH</p>
+              <div className="text-sm">
+                <p className="truncate max-w-[140px]">{account}</p>
+                <p className="text-accent font-semibold">{balance} ETH</p>
               </div>
             )}
           </div>
