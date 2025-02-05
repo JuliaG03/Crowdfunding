@@ -28,7 +28,7 @@ const Dashboard = ({ provider }) => {
     );
 
     setContract(crowdfundingContract);
-
+// Fetch all projects
     try {
       const projectAddresses = await crowdfundingContract.returnAllProjects();
 
@@ -56,13 +56,13 @@ const Dashboard = ({ provider }) => {
           };
         })
       );
-
+// Set the fetched projects to state
       setFundraisings(fetchedProjects);
     } catch (error) {
       console.error("Error fetching projects:", error);
     }
   };
-
+// Contribute to a project
   const contribute = async (projectAddress) => {
     if (!contract) return;
     const amount = contributionAmounts[projectAddress];
@@ -71,7 +71,7 @@ const Dashboard = ({ provider }) => {
       alert("Please enter a valid contribution amount!");
       return;
     }
-
+// Contribute to the project
     try {
       const tx = await contract.contribute(projectAddress, {
         value: ethers.parseEther(amount),
@@ -87,7 +87,7 @@ const Dashboard = ({ provider }) => {
 
   const handleCreateProject = async (e) => {
     e.preventDefault();
-
+// Create a new project
     if (!projectTitle || !projectDesc || !minimumContribution || !targetContribution || !deadline) {
       alert("All fields are required!");
       return;
@@ -99,7 +99,7 @@ const Dashboard = ({ provider }) => {
     }
 
     setIsSubmitting(true);
-
+// Create a new project
     try {
       const signer = await provider.getSigner();
       const crowdfundingContract = new ethers.Contract(crowdfundingAddress, CrowdfundingABI.abi, signer);

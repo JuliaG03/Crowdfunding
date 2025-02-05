@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
-import ProjectDetails from "./pages/ProjectDetails"; // Assuming ProjectDetails exists
+import ProjectDetails from "./pages/ProjectDetails"; 
 import Contribution from "./pages/Contribution";
 import Fundraising from "./pages/Fundraising";
 

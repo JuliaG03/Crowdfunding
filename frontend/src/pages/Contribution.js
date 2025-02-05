@@ -8,7 +8,7 @@ const crowdfundingAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Adr
 const Contributions = ({ provider }) => {
   const [contributions, setContributions] = useState([]);
   const [loading, setLoading] = useState(true);
-
+// Functie care incarca contributiile utilizatorului
   const loadContributions = async () => {
     if (!provider) return;
 

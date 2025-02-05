@@ -102,9 +102,9 @@ const ProjectDetails = ({ provider }) => {
     );
 
     try {
-      // Example withdraw request ID, this would usually be dynamically created
-      const requestId = 0; // Adjust as per actual logic for request ID
-      const tx = await projectContract.withdrawRequestedAmount(requestId); // Use the request ID
+   
+      const requestId = 0; 
+      const tx = await projectContract.withdrawRequestedAmount(requestId); 
       await tx.wait();
       alert("Funds withdrawn successfully!");
       setIsWithdrawCompleted(true); // Mark withdrawal as completed

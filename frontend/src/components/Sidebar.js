@@ -1,6 +1,6 @@
 import React from "react";
-import { Menu } from "../icons/Icons"; // Assuming Menu is an icon
-import logo from "../logo.svg"; // Assuming this is the logo image
+import { Menu } from "../icons/Icons"; 
+import logo from "../logo.svg"; 
 import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ isCollapsed, setIsCollapsed, account, balance }) => {

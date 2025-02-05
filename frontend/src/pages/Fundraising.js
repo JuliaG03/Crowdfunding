@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import CrowdfundingABI from "../Crowdfunding.json"; // ABI for the Crowdfunding contract
 import ProjectABI from "../Project.json"; // ABI for the Project contract
 
-const crowdfundingAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Replace with actual contract address
+const crowdfundingAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Crowdfunding contract address
 
 const Fundraising = ({ provider }) => {
   const [fundraisings, setFundraisings] = useState([]);
@@ -12,18 +12,17 @@ const Fundraising = ({ provider }) => {
   // Fetch all fundraisings created by the user
   const loadFundraisings = async () => {
     if (!provider) return;
-
+    // Get the signer
     const signer = await provider.getSigner();
     const userAddress = await signer.getAddress();
-
+    // Create a new contract instance
     const crowdfundingContract = new ethers.Contract(
       crowdfundingAddress,
       CrowdfundingABI.abi,
       signer
     );
-
+// Fetch all project addresses
     try {
-      // Get all project addresses
       const projectAddresses = await crowdfundingContract.returnAllProjects();
 
       // Fetch fundraisings created by the user
@@ -46,6 +45,7 @@ const Fundraising = ({ provider }) => {
             const targetContribution = ethers.formatEther(
               await projectContract.targetContribution()
             );
+            // Fetch raised amount
             const raisedAmount = ethers.formatEther(
               await projectContract.raisedAmount()
             );
