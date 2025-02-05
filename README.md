@@ -61,7 +61,6 @@ cd crowdfunding-dapp
 
 ##### Backend (Smart Contracts)
 ```bash
-cd hardhat
 npm install
 ```
 
@@ -78,15 +77,19 @@ PRIVATE_KEY=your-private-key
 ALCHEMY_API_KEY=your-alchemy-api-key
 ```
 
-#### 4. Deploy the Smart Contract
+#### 4. Start the backend
 ```bash
-cd ../hardhat
+npx hardhat node
+```
+
+#### 5. Deploy the Smart Contract
+```bash
 npx hardhat compile
 npx hardhat run scripts/deploy.js --network localhost
 ```
 Copy the deployed contract address and update it in frontend pages.
 
-#### 5. Run the Frontend
+#### 6. Run the Frontend
 ```bash
 cd ../frontend
 npm start
