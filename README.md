@@ -74,7 +74,6 @@ npm install
 Create a `.env` file in the `hardhat` folder and add:
 ```plaintext
 PRIVATE_KEY=your-private-key
-ALCHEMY_API_KEY=your-alchemy-api-key
 ```
 
 #### 4. Start the backend
